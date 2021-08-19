@@ -8,37 +8,46 @@ const HEIGHT = canvas.height;
 
 // defining constants for gif
 const DELAY = 500 //500 milliseconds of delay
+const NULLURL = "data:image/gif;base64,R0lGODlhOw==" //null string
 
 //creating eventlistener to start the conway's game of life program
 let start = false;
-
-let dataURL = null
+let dataURL = NULLURL
 
 function onButtonClick(id) {
   if (id === "start-conway") {
-    dataURL = null //reset dataurl 
+    if(!start){
+      dataURL = NULLURL //reset dataurl only after it's been stopped 
+    } 
     start = true;
   }
   //we use an else if statement just in case another button calls this function
   else if (id === "stop-conway") {
     start = false;
-    dataURL = dataURL || app.getGifDataURL() //gets the dataurl from the app
+    dataURL = dataURL.replace(NULLURL,'') || app.getGifDataURL() //gets the dataurl from the app
     console.log(dataURL) // prints it out
-  } else if (id === "reset-button") {
-    if (app) {
-      start = false; //makes sure the app stops updating
-      dataURL = dataURL || app.getGifDataURL() //gets the dataurl from the app
-      app.reset() //resets the board
-      console.log(dataURL) //prints it out
-    }
+  } 
+  else if (id === "reset-button") {
+    start = false; //makes sure the app stops updating
+    dataURL = dataURL.replace(NULLURL, '') || app.getGifDataURL() //gets the dataurl from the app
+    app.reset() //resets the board/clears it. 
+    console.log(dataURL) //prints it out
   }
   else if (id === "remove"){
-    gifDisplayer.innerHTML = ""
+    gifDisplayer.innerHTML = ""  // if the gif is prompted to be removed, remove it. 
   }
   else  {
-    if(dataURL){
-      gifDisplayer.innerHTML = `<img src = "${dataURL}" width = "400" height = "400" />` 
-      gifDisplayer.innerHTML += `<button id="remove" type = "button" class = "btn btn-danger" onclick = "onButtonClick(id)"> Remove Gif </button>`
+    if(dataURL.replace(NULLURL, '')){
+      //maybe replace this with a modal window ? 
+      const string = `<div class="column" >
+                        <img src = "${dataURL}" width = "400" height = "400" />
+                        <button id="remove" type = "button" class = "btn btn-danger" onclick = "onButtonClick(id)"> Remove Gif </button>
+                      </div>`
+      gifDisplayer.innerHTML = string
+    }
+    else{
+      //replace this with a modal window. 
+      alert('Please press pause or reset grid to view a gif')
     }
   }
 }
