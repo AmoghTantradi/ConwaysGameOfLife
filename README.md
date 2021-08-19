@@ -1,5 +1,4 @@
-# ConwaysGameOfLife
-conways game of life 
+
 Conway's Game of Life
 ======================================================
 Conway's Game of life visualizer with additional functionality, allowing you to pause mid-generation and continue. It also allows you to generate the gif and reset the board.
