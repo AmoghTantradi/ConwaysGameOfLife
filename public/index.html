@@ -22,26 +22,18 @@
     />
 
     <!-- Import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css" />
+    <link rel = "stylesheet" type = "text/css"  href="./css/style.css" />
     
     <!-- Import the necessary javascript libraries to store the content as a gif --> 
-    <script type="text/javascript" src="./jsgif/LZWEncoder.js"></script>
-    <script type="text/javascript" src="./jsgif/NeuQuant.js"></script>
-    <script type="text/javascript" src="./jsgif/GIFEncoder.js"></script> 
+    <script type="text/javascript" src="./js/jsgif/LZWEncoder.js"></script>
+    <script type="text/javascript" src="./js/jsgif/NeuQuant.js"></script>
+    <script type="text/javascript" src="./js/jsgif/GIFEncoder.js"></script> 
     <!--library containing methods to convert the gif into a base 64 string  --> 
-    <script type="text/javascript" src="./jsgif/b64.js"></script> 
-    <!-- Importing the webpage's javascript file -->
-    <script type ="text/javascript" src = "script.js" defer> </script>
+    <script type="text/javascript" src="./js/jsgif/b64.js"></script> 
+    <!-- Importing the webpage's javascript file. defer keyword ensures that this is evaluated after the document has been loaded but before the initial html page is previewed -->
+    <script type ="text/javascript" src = "./js/script.js" defer> </script>
   </head>
   <body>
-    <!--
-      This is the body of the page
-      Look at the elements and see how they appear in the rendered page on the right
-      Each element is defined using tags, with < and > indicating where each one opens and closes
-      There are elements for sections of the page, images, text, and more
-      The elements include attributes referenced in the CSS for the page style
-    -->
-
     <!-- Adding container class -->
 
     <div class="container-fluid">
@@ -102,7 +94,7 @@
           class="btn btn-danger"
           onclick="onButtonClick(id)"
         >
-          Stop
+          Pause
         </button>
         <button
           id="reset-button"
@@ -110,8 +102,23 @@
           class="btn btn-warning"
           onclick="onButtonClick(id)"
         >
-          Clear
+          Reset Grid
         </button>
+        <button
+        id = "show-Gif"
+        type = "button"
+        class = "btn btn-info"
+        onclick = "onButtonClick(id)"
+        >
+        Show Gif
+        </button>
+        
+      </div>
+    </div>
+    <!--Third row to display the gif-->
+    <div class = "row justify-content-center">
+      <div id = "gifView" class = "column">
+        <!--This is the place to display the image-->
       </div>
     </div>
   </body>

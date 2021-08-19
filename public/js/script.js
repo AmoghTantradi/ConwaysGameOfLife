@@ -2,6 +2,7 @@ console.log("script running!");
 
 //defining constants and web / dom elements.
 const canvas = document.querySelector("#tutorial");
+const gifDisplayer = document.querySelector("#gifView")
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
@@ -11,21 +12,33 @@ const DELAY = 500 //500 milliseconds of delay
 //creating eventlistener to start the conway's game of life program
 let start = false;
 
+let dataURL = null
+
 function onButtonClick(id) {
   if (id === "start-conway") {
+    dataURL = null //reset dataurl 
     start = true;
   }
   //we use an else if statement just in case another button calls this function
   else if (id === "stop-conway") {
     start = false;
-    const dataURL = app.getGifDataURL() //gets the dataurl from the app
+    dataURL = dataURL || app.getGifDataURL() //gets the dataurl from the app
     console.log(dataURL) // prints it out
   } else if (id === "reset-button") {
     if (app) {
       start = false; //makes sure the app stops updating
-      const dataURL = app.getGifDataURL() //gets the dataurl from the app
+      dataURL = dataURL || app.getGifDataURL() //gets the dataurl from the app
       app.reset() //resets the board
       console.log(dataURL) //prints it out
+    }
+  }
+  else if (id === "remove"){
+    gifDisplayer.innerHTML = ""
+  }
+  else  {
+    if(dataURL){
+      gifDisplayer.innerHTML = `<img src = "${dataURL}" width = "400" height = "400" />` 
+      gifDisplayer.innerHTML += `<button id="remove" type = "button" class = "btn btn-danger" onclick = "onButtonClick(id)"> Remove Gif </button>`
     }
   }
 }
@@ -89,13 +102,6 @@ Square.prototype.findNextGenerationState = function(gridSpace) {
         neighborAliveCount += neighborSquare.alive;
       }
     }
-
-    if (this.alive) {
-      console.log("this", this);
-      console.log("neighbors", neighbors);
-      console.log("neighbor alive count", neighborAliveCount);
-    }
-
     //now updating the next generation state
     if (this.alive && (neighborAliveCount === 2 || neighborAliveCount === 3)) {
       this.nextGenerationState = this.alive;
@@ -103,11 +109,6 @@ Square.prototype.findNextGenerationState = function(gridSpace) {
       this.nextGenerationState = !this.alive;
     } else {
       this.nextGenerationState = false;
-    }
-
-    if (this.alive) {
-      console.log("this after changing nextGenerationState", this);
-      console.log("neighbors", neighbors);
     }
   }
 };
@@ -122,11 +123,11 @@ Square.prototype.draw = function(ctx) {
   if (this.alive) {
     ctx.fillStyle = "Purple";
     ctx.fillRect(this.x, this.y, this.size, this.size);
-    console.log("filling Purple");
+    //console.log("filling Purple");
   } else {
     ctx.fillStyle = "Black";
     ctx.fillRect(this.x, this.y, this.size, this.size);
-    console.log("filling Black");
+    //console.log("filling Black");
   }
   ctx.strokeStyle = "White";
   ctx.strokeRect(this.x, this.y, this.size, this.size);
@@ -282,7 +283,7 @@ App.prototype.update = function() {
 
 App.prototype.getGifDataURL = function () {
   this.encoder.finish()
-  this.encoder.download('download.gif')
+  //this.encoder.download('download.gif')
   const binaryGif = this.encoder.stream().getData()
   return 'data:image/gif;base64,'+encode64(binaryGif) 
 }
