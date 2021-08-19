@@ -5,6 +5,9 @@ const canvas = document.querySelector("#tutorial");
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
+// defining constants for gif
+const DELAY = 500 //500 milliseconds of delay
+
 //creating eventlistener to start the conway's game of life program
 let start = false;
 
@@ -15,10 +18,14 @@ function onButtonClick(id) {
   //we use an else if statement just in case another button calls this function
   else if (id === "stop-conway") {
     start = false;
+    const dataURL = app.getGifDataURL() //gets the dataurl from the app
+    console.log(dataURL) // prints it out
   } else if (id === "reset-button") {
     if (app) {
-      start = false;
-      app.reset();
+      start = false; //makes sure the app stops updating
+      const dataURL = app.getGifDataURL() //gets the dataurl from the app
+      app.reset() //resets the board
+      console.log(dataURL) //prints it out
     }
   }
 }
@@ -219,7 +226,12 @@ function App() {
   //defining core elements needed (canvas and context objects)
   this.ctx = canvas.getContext("2d");
   //defining animated gif encoder to convert the image into a gif
-  //this.encoder = new GIFEncoder()
+  this.encoder = new GIFEncoder()
+  //setting the encoder to loop forever
+  this.encoder.setRepeat(0); //0  -> loop forever
+                        //1+ -> loop n times then stop
+  this.encoder.setDelay(DELAY); //delay before adding new frame 
+
   //defining constants
   this.spaceWidth = WIDTH;
   this.spaceHeight = HEIGHT;
@@ -248,17 +260,32 @@ App.prototype.onMouseClick = function(e) {
 };
 
 App.prototype.start = function() {
+  this.encoder.start()
   window.requestAnimationFrame(this.update.bind(this)); // binding the this keyword to the function so that the this keyword refers to the class itself.
 };
 
 App.prototype.update = function() {
   if (start) {
     this.space.update();
+    try{
+      this.encoder.addFrame(this.ctx)
+    }
+    catch(err){
+      console.log('error encountered', err)
+      console.log('starting encoder')
+      this.encoder.start()
+    }
   }
   this.draw();
   window.requestAnimationFrame(this.update.bind(this)); // binding the this keyword to the function so that the this keyword refers to the class itself.
 };
 
+App.prototype.getGifDataURL = function () {
+  this.encoder.finish()
+  this.encoder.download('download.gif')
+  const binaryGif = this.encoder.stream().getData()
+  return 'data:image/gif;base64,'+encode64(binaryGif) 
+}
 App.prototype.reset = function() {
   this.space.reset();
 };
