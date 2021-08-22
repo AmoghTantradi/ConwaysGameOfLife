@@ -1,110 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!--<link rel="icon" href="" /> insert random image -->
+<head>
 
-    <title>Conway's Game Of Life</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!--<link rel="icon" href="" /> insert random image -->
 
-    <!-- Import bootstrap -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
-      crossorigin="anonymous"
-    />
+  <title>Conway's Game Of Life</title>
 
-    <!-- Import the webpage's stylesheet -->
-    <link rel = "stylesheet" type = "text/css"  href="./css/style.css" />
-    
-    <!-- Import the necessary javascript libraries to store the content as a gif --> 
-    <script type="text/javascript" src="./js/jsgif/LZWEncoder.js"></script>
-    <script type="text/javascript" src="./js/jsgif/NeuQuant.js"></script>
-    <script type="text/javascript" src="./js/jsgif/GIFEncoder.js"></script> 
-    <!--library containing methods to convert the gif into a base 64 string  --> 
-    <script type="text/javascript" src="./js/jsgif/b64.js"></script> 
-    <!-- Importing the webpage's javascript file. defer keyword ensures that this is evaluated after the document has been loaded but before the initial html page is previewed -->
-    <script type ="text/javascript" src = "./js/script.js" defer> </script>
-  </head>
-  <body>
-    <!-- Adding container class -->
+  <!-- Import bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <div class="container-fluid">
-      <!-- Adding a navbar at the top -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Conway's Game of Life</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarNavDropdown"
-          aria-controls="navbarNavDropdown"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <!-- Items on the navbar -->
-          <ul class="navbar-nav">
-            <!-- first page (home) -->
-            <li class="nav-item active">
-              <a class="nav-link" href="#"
-                >Home <span class="sr-only">(current)</span></a
-              >
-            </li>
-          </ul>
+  <!-- Import the webpage's stylesheet -->
+  <link rel="stylesheet" type="text/css" href="./css/style.css" />
+
+  <!-- Import the necessary javascript libraries to store the content as a gif -->
+  <script type="text/javascript" src="./js/jsgif/LZWEncoder.js"></script>
+  <script type="text/javascript" src="./js/jsgif/NeuQuant.js"></script>
+  <script type="text/javascript" src="./js/jsgif/GIFEncoder.js"></script>
+  <!--library containing methods to convert the gif into a base 64 string  -->
+  <script type="text/javascript" src="./js/jsgif/b64.js"></script>
+  <!-- Importing the webpage's javascript file. defer keyword ensures that this is evaluated after the document has been loaded but before the initial html page is previewed -->
+  <script type="text/javascript" src="./js/script.js" defer> </script>
+</head>
+
+<body>
+  <!-- Adding container class -->
+
+  <div class="container-fluid">
+    <!-- Adding a navbar at the top -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Conway's Game of Life</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <!-- Items on the navbar -->
+        <ul class="navbar-nav">
+          <!-- first page (home) -->
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!--First row 
+        This is the place to display the image
+      Second row-->
+    <div class="modal fade" data-keyboard="false" data-backdrop="static" id="gifViewOutline" tabindex="-1" role="dialog"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="modalTitle" class="modal-title">Gif</h5>
+            <button type="button" onclick="onButtonClick()" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div id="gifView" class="modal-body">
+            <!--Gif goes right in here -->
+          </div>
         </div>
-      </nav>
-
-      <!--First row -->
-      <div id = "gifView" class = "row justify-content-center">
-        <!--This is the place to display the image-->
-      </div>
-      <!--Second row-->
-      <div class="row">
-        <canvas id="tutorial" width="800" height="800"></canvas>
       </div>
     </div>
-    <!--Third row -->
-    <div class="row justify-content-center">
-      <div class="column">
-        <button
-          id="start-conway"
-          type="button"
-          class="btn btn-primary"
-          onclick="onButtonClick(id)"
-        >
-          Start
-        </button>
-        <button
-          id="stop-conway"
-          type="button"
-          class="btn btn-danger"
-          onclick="onButtonClick(id)"
-        >
-          Pause
-        </button>
-        <button
-          id="reset-button"
-          type="button"
-          class="btn btn-warning"
-          onclick="onButtonClick(id)"
-        >
-          Reset Grid
-        </button>
-        <button
-        id = "show-Gif"
-        type = "button"
-        class = "btn btn-info"
-        onclick = "onButtonClick(id)"
-        >
+    <div class="row">
+      <canvas id="tutorial" width="800" height="800"></canvas>
+    </div>
+  </div>
+  <!--Third row -->
+  <div class="row justify-content-center">
+    <div class="column">
+      <button id="start-conway" type="button" class="btn btn-primary" onclick="onButtonClick(id)">
+        Start
+      </button>
+      <button id="pause-conway" type="button" class="btn btn-danger" onclick="onButtonClick(id)">
+        Pause
+      </button>
+      <button id="reset-button" type="button" class="btn btn-warning" onclick="onButtonClick(id)">
+        Reset Grid
+      </button>
+      <button id="show-Gif" type="button" class="btn btn-info" data-toggle="modal" data-target="#gifViewOutline"
+        onclick="onButtonClick(id)">
         Show Gif
-        </button>
-        
-      </div>
+      </button>
+
     </div>
-  </body>
+  </div>
+  <!--Adding the necessary Javascript libraries to allow the bootstrap to function-->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>

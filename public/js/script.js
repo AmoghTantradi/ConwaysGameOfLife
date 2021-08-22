@@ -3,6 +3,7 @@ console.log("script running!");
 //defining constants and web / dom elements.
 const canvas = document.querySelector("#tutorial");
 const gifDisplayer = document.querySelector("#gifView")
+const modalTitle = document.querySelector("#modalTitle")
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
@@ -13,41 +14,45 @@ const NULLURL = "data:image/gif;base64,R0lGODlhOw==" //null string
 //creating eventlistener to start the conway's game of life program
 let start = false;
 let dataURL = NULLURL
-
+//function to handle button clicks
 function onButtonClick(id) {
+  console.log('something clicked')
   if (id === "start-conway") {
-    if(!start){
-      dataURL = NULLURL //reset dataurl only after it's been stopped 
-    } 
+    if (!start) {
+      dataURL = NULLURL //reset dataurl only after the animation has ended 
+    }
     start = true;
   }
   //we use an else if statement just in case another button calls this function
-  else if (id === "stop-conway") {
-    start = false;
-    dataURL = dataURL.replace(NULLURL,'') || app.getGifDataURL() //gets the dataurl from the app
+  else if (id === "pause-conway") {
+    start = false // pause the simulation
+    dataURL = dataURL.replace(NULLURL, '') || app.getGifDataURL() //gets the dataurl from the app
     console.log(dataURL) // prints it out
-  } 
+  }
   else if (id === "reset-button") {
     start = false; //makes sure the app stops updating
     dataURL = dataURL.replace(NULLURL, '') || app.getGifDataURL() //gets the dataurl from the app
     app.reset() //resets the board/clears it. 
     console.log(dataURL) //prints it out
   }
-  else if (id === "remove"){
-    gifDisplayer.innerHTML = ""  // if the gif is prompted to be removed, remove it. 
-  }
-  else  {
-    if(dataURL.replace(NULLURL, '')){
-      //maybe replace this with a modal window ? 
-      const string = `<div class="column" >
-                        <img src = "${dataURL}" width = "400" height = "400" />
-                        <button id="remove" type = "button" class = "btn btn-danger" onclick = "onButtonClick(id)"> Remove Gif </button>
-                      </div>`
+  else if (id === 'show-Gif') { // this is for showing the gif
+    if (dataURL.replace(NULLURL, '')) { //we'll only show it if no simulation is active 
+      modalTitle.innerHTML = 'Gif View'
+      const string = ` <img src = "${dataURL}" width = "100%" height = "100%" />`
       gifDisplayer.innerHTML = string
     }
-    else{
-      //replace this with a modal window. 
-      alert('Please press pause or reset grid to view a gif')
+    else {
+      start = false // pause it and restart it when this modal is closed
+      modalTitle.innerHTML = 'Warning'
+      const string = 'You can only view a gif after pausing or resetting the grid. Please press Pause or Reset Grid if you wish to view a Gif.'
+      gifDisplayer.innerHTML = string
+    }
+  }
+  // this is for when the modal is removed
+  // restart the visualization once the modal is closed and there was a visualization initially playing. 
+  else if (modalTitle.innerHTML === 'Warning') {
+    if(!app.space.isEmpty()){ // only resume the animation if the grid is not empty/if there are live cells. 
+      start = true
     }
   }
 }
@@ -58,31 +63,28 @@ function Square(x, y, dim) {
   this.y = y;
   this.size = dim;
   this.alive = false;
-  this.clicked = false;
   this.nextGenerationState = null; // births and deaths occur simultaneously in a moment known as a tick. Since theyre supposed to happen simultaneously, we can try storing the next state of each square and then update this next state later on
 }
 
 //returns whether or not the square contains the coordinates of the click
-Square.prototype.isClicked = function(posx, posy) {
+Square.prototype.isClicked = function (posx, posy) {
   return (
-    this.x < posx &&
-    posx < this.x + this.size &&
+    (this.x < posx &&
+    posx < this.x + this.size) &&
     (this.y < posy && posy < this.y + this.size)
   );
 };
 
 //this records the square being clicked and makes changes in the logic accordingly
-Square.prototype.handleClick = function() {
-  console.log("clicked!");
-  this.clicked = true;
+Square.prototype.handleClick = function () {
   this.alive = !this.alive;
 };
 
-Square.prototype.doesNeighborExist = function(px, py) {
-  return 0 <= px && px < WIDTH && (0 <= py && py < HEIGHT);
+Square.prototype.doesNeighborExist = function (px, py) {
+  return (0 <= px && px < WIDTH) && (0 <= py && py < HEIGHT);
 };
 
-Square.prototype.findNextGenerationState = function(gridSpace) {
+Square.prototype.findNextGenerationState = function (gridSpace) {
   /*
   rules:
   1. any live cell with two or three live neighbors survives. 
@@ -122,21 +124,20 @@ Square.prototype.findNextGenerationState = function(gridSpace) {
   }
 };
 //moves into the next generation. Make sure this function is called after findNextGenerationState
-Square.prototype.update = function() {
+Square.prototype.update = function () {
   this.alive = this.nextGenerationState;
   this.nextGenerationState = null;
 };
 
 //our square will have different colors based on its states
-Square.prototype.draw = function(ctx) {
+Square.prototype.draw = function (ctx) {
   if (this.alive) {
     ctx.fillStyle = "Purple";
     ctx.fillRect(this.x, this.y, this.size, this.size);
-    //console.log("filling Purple");
-  } else {
+  } 
+  else {
     ctx.fillStyle = "Black";
     ctx.fillRect(this.x, this.y, this.size, this.size);
-    //console.log("filling Black");
   }
   ctx.strokeStyle = "White";
   ctx.strokeRect(this.x, this.y, this.size, this.size);
@@ -153,7 +154,7 @@ function Grid(squareSize) {
 }
 
 //creating the array that would store the values of the grid
-Grid.prototype.createGridArray = function() {
+Grid.prototype.createGridArray = function () {
   const arr = new Array(this.maxWidth / this.squareSize);
   for (let i = 0; i < arr.length; i++) {
     arr[i] = new Array(this.maxHeight / this.squareSize);
@@ -161,7 +162,7 @@ Grid.prototype.createGridArray = function() {
   return arr;
 };
 //this creates the grid.
-Grid.prototype.createGrid = function() {
+Grid.prototype.createGrid = function () {
   const array = this.createGridArray();
   for (let i = 0; i < array.length; i++) {
     for (let j = 0; j < array[0].length; j++) {
@@ -175,8 +176,18 @@ Grid.prototype.createGrid = function() {
   return array;
 };
 
+Grid.prototype.isEmpty  = function () {
+  let countSquares = 0
+  for (let i = 0; i < this.grid.length; i++){
+    for (let j = 0; j < this.grid.length; j++){
+      countSquares += this.grid[i][j].alive
+    }
+  }
+  return (!countSquares)
+}
+
 //this changes the next state of each square if it has been clicked
-Grid.prototype.updateSquare = function(clickedPosX, clickedPosY) {
+Grid.prototype.updateSquare = function (clickedPosX, clickedPosY) {
   //checks if a square has been clicked
   for (let i = 0; i < this.grid.length; i++) {
     for (let j = 0; j < this.grid.length; j++) {
@@ -188,12 +199,12 @@ Grid.prototype.updateSquare = function(clickedPosX, clickedPosY) {
   }
 };
 //this finds out whether a particular square lives inside the grid.
-Grid.prototype.hasSquare = function(i, j) {
+Grid.prototype.hasSquare = function (i, j) {
   return 0 <= i && i < this.grid.length && (0 <= j && j < this.grid[0].length);
 };
 
 //this finds the next generation state for each square (if it doesn't explicitly have one that is)
-Grid.prototype.updateNextGenerationState = function() {
+Grid.prototype.updateNextGenerationState = function () {
   for (let i = 0; i < this.grid.length; i++) {
     for (let j = 0; j < this.grid.length; j++) {
       const square = this.grid[i][j];
@@ -203,7 +214,7 @@ Grid.prototype.updateNextGenerationState = function() {
 };
 
 //this basically calls the update function on each square , and this will essentially assign the next generation state of each square to its alive value.
-Grid.prototype.updateSquares = function() {
+Grid.prototype.updateSquares = function () {
   for (let i = 0; i < this.grid.length; i++) {
     for (let j = 0; j < this.grid.length; j++) {
       const square = this.grid[i][j];
@@ -213,16 +224,16 @@ Grid.prototype.updateSquares = function() {
 };
 
 //updates by finding the next generation state for each square and then assigning the next generation state of each square to its alive value.
-Grid.prototype.update = function() {
+Grid.prototype.update = function () {
   this.updateNextGenerationState();
   this.updateSquares();
 };
 //resets by creating a new grid
-Grid.prototype.reset = function() {
+Grid.prototype.reset = function () {
   this.grid = this.createGrid();
 };
 
-Grid.prototype.draw = function(ctx) {
+Grid.prototype.draw = function (ctx) {
   for (let i = 0; i < this.grid.length; i++) {
     for (let j = 0; j < this.grid[0].length; j++) {
       this.grid[i][j].draw(ctx);
@@ -239,7 +250,7 @@ function App() {
   this.encoder = new GIFEncoder()
   //setting the encoder to loop forever
   this.encoder.setRepeat(0); //0  -> loop forever
-                        //1+ -> loop n times then stop
+  //1+ -> loop n times then stop
   this.encoder.setDelay(DELAY); //delay before adding new frame 
 
   //defining constants
@@ -255,32 +266,31 @@ function App() {
   console.log(canvas.style);
 }
 
-App.prototype.addMouseListener = function() {
+App.prototype.addMouseListener = function () {
   canvas.addEventListener("click", this.onMouseClick.bind(this));
 };
 
-App.prototype.onMouseClick = function(e) {
+App.prototype.onMouseClick = function (e) {
   if (!start) {
     const bound = canvas.getBoundingClientRect();
     const x = e.clientX - bound.left - canvas.clientLeft;
     const y = e.clientY - bound.top - canvas.clientTop;
-    console.log("clicked here!", x, y);
     this.space.updateSquare(x, y);
   }
 };
 
-App.prototype.start = function() {
+App.prototype.start = function () {
   this.encoder.start()
   window.requestAnimationFrame(this.update.bind(this)); // binding the this keyword to the function so that the this keyword refers to the class itself.
 };
 
-App.prototype.update = function() {
+App.prototype.update = function () {
   if (start) {
     this.space.update();
-    try{
+    try {
       this.encoder.addFrame(this.ctx)
     }
-    catch(err){
+    catch (err) {
       console.log('error encountered', err)
       console.log('starting encoder')
       this.encoder.start()
@@ -292,15 +302,14 @@ App.prototype.update = function() {
 
 App.prototype.getGifDataURL = function () {
   this.encoder.finish()
-  //this.encoder.download('download.gif')
   const binaryGif = this.encoder.stream().getData()
-  return 'data:image/gif;base64,'+encode64(binaryGif) 
+  return 'data:image/gif;base64,' + encode64(binaryGif)
 }
-App.prototype.reset = function() {
+App.prototype.reset = function () {
   this.space.reset();
 };
 
-App.prototype.draw = function() {
+App.prototype.draw = function () {
   this.space.draw(this.ctx);
 };
 
